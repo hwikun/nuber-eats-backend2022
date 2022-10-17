@@ -11,10 +11,10 @@ import { CoreEntity } from '../../common/entities/core.entity';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
-enum UserRole {
-  Clinet,
-  Owner,
-  Delivery,
+export enum UserRole {
+  Clinet = 'Clinet',
+  Owner = 'Owner',
+  Delivery = 'Delivery',
 }
 
 // for GraphQL
