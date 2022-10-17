@@ -13,7 +13,6 @@ import { Verification } from './entities/verification.entity';
 import { VerifyEmailOutput, VerifyEmailInput } from './dtos/verify-email.dto';
 import { UserProfileOutput } from './dtos/user-profile.dto';
 import { MailService } from '../mail/mail.service';
-import { takeWhile } from 'rxjs';
 
 @Injectable()
 export class UsersService {
