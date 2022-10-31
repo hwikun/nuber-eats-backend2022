@@ -19,6 +19,7 @@ export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
+    @InjectRepository(Category)
     private readonly categories: CategoryRepository,
   ) {}
 
@@ -38,6 +39,7 @@ export class RestaurantService {
         ok: true,
       };
     } catch (error) {
+      console.log(error);
       return {
         ok: false,
         error: 'Could not create restaurant',
