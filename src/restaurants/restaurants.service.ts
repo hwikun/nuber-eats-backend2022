@@ -30,6 +30,7 @@ import { Dish } from './entities/dish.entity';
 import { Console } from 'console';
 import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
+import { CoreOutput } from 'src/common/dtos/output.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -294,29 +295,32 @@ export class RestaurantService {
     }
   }
 
-  async checkDishOwner(ownerId: number, dishId: number) {}
+  async checkDishOwner(ownerId: number, dishId: number) {
+    const dish = await this.dishes.findOne({
+      where: { id: dishId },
+      relations: ['restaurant'],
+    });
+    if (!dish) {
+      return {
+        ok: false,
+        error: 'Dish not found',
+      };
+    }
+    if (dish.restaurant.ownerId !== ownerId) {
+      return {
+        ok: false,
+        error: "You can't do that from a restaurant that's not yours",
+      };
+    }
+    return dish;
+  }
 
   async editDish(
     owner: User,
     editDishInput: EditDishInput,
   ): Promise<EditDishOutput> {
     try {
-      const dish = await this.dishes.findOne({
-        where: { id: editDishInput.dishId },
-        relations: ['restaurant'],
-      });
-      if (!dish) {
-        return {
-          ok: false,
-          error: 'Dish not found',
-        };
-      }
-      if (dish.restaurant.ownerId !== owner.id) {
-        return {
-          ok: false,
-          error: "You can't edit a dish from a restaurant that's not yours.",
-        };
-      }
+      await this.checkDishOwner(owner.id, editDishInput.dishId);
       await this.dishes.save([
         {
           id: editDishInput.dishId,
@@ -339,22 +343,7 @@ export class RestaurantService {
     { dishId }: DeleteDishInput,
   ): Promise<DeleteDishOutput> {
     try {
-      const dish = await this.dishes.findOne({
-        where: { id: dishId },
-        relations: ['restaurant'],
-      });
-      if (!dish) {
-        return {
-          ok: false,
-          error: 'Dish not found',
-        };
-      }
-      if (dish.restaurant.ownerId !== owner.id) {
-        return {
-          ok: false,
-          error: "You can't delete a dish from a restaurant that's not yours.",
-        };
-      }
+      await this.checkDishOwner(owner.id, dishId);
       await this.dishes.delete(dishId);
       return {
         ok: true,
